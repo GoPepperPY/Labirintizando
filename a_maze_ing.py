@@ -1,44 +1,39 @@
 #!/usr/bin/env python3
 
-from config import parse, parse_error
-
 import sys
-# class Structure:
-#     def __init__(self, config_file: str):
-#         try:
-#             with open(config_file, "r") as f:
-#                 settings: list[str] = (f.read()).split("\n")
-#             # SPLIT
-#             try:
-#                 if ("WIDTH" in settings[0]
-#                     and "HEIGHT" in settings[1]
-#                     and "ENTRY" in settings[2]
-#                     and "EXIT" in settings[3]
-#                     and "OUTPUT_FILE" in settings[]
-#                     and "PERFECT" in settings):
-#                     self._width: int = int((settings[0].split("="))[1])
-#                     self._heigth: int = int((settings[1].split("="))[1])
-#                     x: int = int(((((settings[2].strip(" ")).split("="))[1]).split(","))[0])
-#                     y: int = int(((((settings[2].strip(" ")).split("="))[1]).split(","))[1])
-#                     self._entry: list[tuple[int, int]] = [x, y]
-#                     x: int = int(((((settings[3].strip(" ")).split("="))[1]).split(","))[0])
-#                     y: int = int(((((settings[3].strip(" ")).split("="))[1]).split(","))[1])
-#                     self._exit: list[tuple[int, int]] = [x, y]
-#                     self._output_file: str = (settings[4].strip(" ")).split("=")[1]
-#                     self._perfect: bool = False if "false" == (settings[5].strip(" ")).split("=")[1].lower() else True
-#                 else:
-#                     raise()
-#             except:
-#                 print("Invalid input in config.txt")
-#         except:
-#             print("Couldn't open config.txt")
-        
+
+from config import parse, parse_error
+from mazegen.mazegenerator import MazeGenerator
+from writer import write_maze, write_error
 
 def main() -> None:
+    if len(sys.argv) != 2:
+        print(f"usage: {sys.argv[0]} config.txt")
+        sys.exit(1)
     try:
-        parse(sys.argv[1])
+        conf = parse(sys.argv[1])
     except parse_error as error:
-        print(error)
+        print(f"error: {error}")
+        sys.exit(1)
+
+    gen = MazeGenerator(
+        size=(conf.width, conf.height),
+        perfect=conf.perfect,
+        entry_cell=conf.entry,
+        exit_cell=conf.exit,
+        seed=conf.seed,
+    )
+
+    if gen.shortest_path is False:
+        print("error: no path from entry to exit")
+        sys.exit(1)
+
+    try:
+        write_maze(conf.output_file, gen.maze, gen.maze_entry,
+                   gen.maze_exit, str(gen.shortest_path))
+    except write_error as error:
+        print(f"error: {error}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
