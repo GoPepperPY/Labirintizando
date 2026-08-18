@@ -17,7 +17,7 @@ def _steps(entry: tuple[int, int], path: str) -> set[tuple[int, int]]:
     moves = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
     x, y = entry
     cells = {(x, y)}
-    for letter in path:
+    for +letter in path:
         if letter not in moves:
             continue
         dx, dy = moves[letter]
