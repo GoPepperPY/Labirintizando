@@ -56,11 +56,6 @@ class MazeGenerator:
 #    Private functions
 
     def _braid(self) -> None:
-        # Pac-Man-compatible maze: remove every dead-end (a corridor with a
-        # single opening) by carving one extra passage, so a chased player is
-        # never trapped. The isolated '42' cells (value 15) and the outer
-        # border are left untouched. Opening a wall only raises both cells'
-        # degree, so a single pass cannot create a new dead-end.
         directions = [(0, -1, 1, 4), (1, 0, 2, 8),
                       (0, 1, 4, 1), (-1, 0, 8, 2)]   # dx, dy, code, opp_code
         for y in range(self._height):
@@ -140,10 +135,6 @@ class MazeGenerator:
                         self._maze[ny][nx] = self._maze[ny][nx] & (~opp_code)
 
     def _generate_maze(self, x: int, y: int, from_code: int) -> None:
-        # Iterative depth-first carving with an explicit stack, so very large
-        # mazes never hit Python's recursion limit. Each frame keeps its own
-        # neighbour generator, which preserves the original lazy evaluation
-        # order (and its random side effects) exactly as the recursive version.
         def _enter(cx, cy, fcode):
             self._path[cy][cx] = 1
             non_mutable = self._maze[cy][cx]

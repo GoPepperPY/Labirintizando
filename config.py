@@ -57,7 +57,7 @@ class parse:
             raise parse_error("ENTRY and EXIT must be different cells")
 
     def _extract(self, pairs: dict[str, str]) -> None:
-        """Convert the raw string values into typed attributes."""
+        """ Convert the raw string values into typed attributes. """
 
         missing = [key for key in REQUIRED_KEYS if key not in pairs]
         if missing:
@@ -86,7 +86,7 @@ class parse:
 
         except OSError as error:
             raise parse_error(f"cannot read {path}: "
-                              f"{error.strerror}") from error
+                              f"{error.strerror}")
 
         pairs: dict[str, str] = {}
         for line in lines:
