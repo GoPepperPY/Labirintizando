@@ -1,25 +1,80 @@
+#!/usr/bin/env python3
+"""Carving passages and stamping the '42' pattern into a maze."""
+
 import random
 
 Cell = tuple[int, int]
 Walls = dict[str, bool]
 Maze = dict[Cell, Walls]
- 
+
 DIRECTIONS: dict[str, tuple[int, int]] = {
     "N": (0, -1),
     "E": (1, 0),
     "S": (0, 1),
     "W": (-1, 0),
 }
- 
+
 OPPOSITE: dict[str, str] = {"N": "S", "E": "W", "S": "N", "W": "E"}
 
+GLYPH: tuple[str, ...] = (
+    "#...###",
+    "#.....#",
+    "###.###",
+    "..#.#..",
+    "..#.###",
+)
+
+
+def build_closed(width: int, height: int) -> Maze:
+    """Return a maze of the given size with every wall closed."""
+
+    maze: Maze = {}
+    for y in range(height):
+        for x in range(width):
+            maze[(x, y)] = {"N": True, "E": True, "S": True, "W": True}
+    return maze
+
+
+def glyph_cells(width: int, height: int,
+                keep_open: set[Cell] | None = None) -> set[Cell]:
+    """Return the cells that must stay closed to draw a '42'."""
+
+    reserved = keep_open or set()
+    tall = len(GLYPH)
+    wide = len(GLYPH[0])
+    if wide + 2 > width or tall + 2 > height:
+        print("warning: maze too small to draw the '42' pattern")
+        return set()
+    base_x = (width - wide) // 2
+    base_y = (height - tall) // 2
+    for shift_x, shift_y in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
+        left = base_x + shift_x
+        top = base_y + shift_y
+        if not (1 <= left and left + wide <= width - 1):
+            continue
+        if not (1 <= top and top + tall <= height - 1):
+            continue
+        cells = {(left + x, top + y)
+                 for y, row in enumerate(GLYPH)
+                 for x, mark in enumerate(row) if mark == "#"}
+        if not cells & reserved:
+            return cells
+    print("warning: no room to draw the '42' pattern")
+    return set()
+
+
 def open_wall(maze: Maze, cell: Cell, direction: str) -> None:
+    """Open one wall on both sides so the two cells stay coherent."""
+
     dx, dy = DIRECTIONS[direction]
     neighbour = (cell[0] + dx, cell[1] + dy)
     maze[cell][direction] = False
     maze[neighbour][OPPOSITE[direction]] = False
 
+
 def neighbours(maze: Maze, cell: Cell) -> list[tuple[str, Cell]]:
+    """Return the in-bounds neighbours of a cell."""
+
     found: list[tuple[str, Cell]] = []
     for direction, (dx, dy) in DIRECTIONS.items():
         neighbour = (cell[0] + dx, cell[1] + dy)
@@ -27,14 +82,16 @@ def neighbours(maze: Maze, cell: Cell) -> list[tuple[str, Cell]]:
             found.append((direction, neighbour))
     return found
 
+
 def carve(maze: Maze, start: Cell, rng: random.Random,
           blocked: set[Cell] | None = None) -> None:
+    """Carve a spanning tree of passages with an iterative backtracker."""
+
     closed = blocked or set()
     if start not in maze:
         raise ValueError(f"start {start} is outside the maze")
     if start in closed:
         raise ValueError(f"start {start} is a blocked cell")
- 
     visited: set[Cell] = {start}
     stack: list[Cell] = [start]
     while stack:
@@ -48,35 +105,32 @@ def carve(maze: Maze, start: Cell, rng: random.Random,
         open_wall(maze, cell, direction)
         visited.add(chosen)
         stack.append(chosen)
-  
 
-def print_maze(maze, x, y):
-    for i in range(y):
+
+def print_maze(maze: Maze, width: int, height: int,
+               blocked: set[Cell] | None = None) -> None:
+    """Draw the maze in the terminal using solid blocks."""
+
+    closed = blocked or set()
+    for y in range(height):
         print("██", end="")
-        for j in range(x):
-            if maze[(j, i)]["N"]:
-                print("████", end="")
-            else:
-                print("  ██", end="")
+        for x in range(width):
+            print("████" if maze[(x, y)]["N"] else "  ██", end="")
         print("\n██", end="")
-        for j in range(x):
-            if maze[(j, i)]["E"]:
-                print("  ██", end="")
-            else:
-                print("    ", end="")
+        for x in range(width):
+            print("░░" if (x, y) in closed else "  ", end="")
+            print("██" if maze[(x, y)]["E"] else "  ", end="")
         print()
-    print("██", end="")
-    for _ in range(x):
-        print("████", end="")
-    print()
+    print("██" * (width * 2 + 1))
 
 
 if __name__ == "__main__":
-    maze: dict[Cell, Walls] = {}
-    length = 30
-    width = 30
-    for i in range(length):
-        for j in range(width):
-            maze[(j, i)] = {"N":True, "E":True, "S":True, "W":True}
-    carve(maze, (0,0), random.Random(1585))
-    print_maze(maze, width, length)
+    WIDTH = 21
+    HEIGHT = 21
+    ENTRY = (0, 0)
+    EXIT = (WIDTH - 1, HEIGHT - 1)
+
+    board = build_closed(WIDTH, HEIGHT)
+    pattern = glyph_cells(WIDTH, HEIGHT, {ENTRY, EXIT})
+    carve(board, ENTRY, random.Random(1585), pattern)
+    print_maze(board, WIDTH, HEIGHT, pattern)
