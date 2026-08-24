@@ -35,28 +35,28 @@ def build_closed(width: int, height: int) -> Maze:
     return maze
 
 
-def glyph_cells(width: int, height: int,
-                keep_open: set[Cell] | None = None) -> set[Cell]:
+def glyph_cells(width: int, height: int, reserved: set[Cell]) -> set[Cell]:
     """Return the cells that must stay closed to draw a '42'."""
 
-    reserved = keep_open or set()
-    tall = len(GLYPH)
-    wide = len(GLYPH[0])
-    if wide + 2 > width or tall + 2 > height:
+    length_42 = len(GLYPH)
+    width_42 = len(GLYPH[0])
+    if width_42 + 2 > width or length_42 + 2 > height:
         print("warning: maze too small to draw the '42' pattern")
         return set()
-    base_x = (width - wide) // 2
-    base_y = (height - tall) // 2
+    base_x = (width - width_42) // 2
+    base_y = (height - length_42) // 2
     for shift_x, shift_y in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
         left = base_x + shift_x
         top = base_y + shift_y
-        if not (1 <= left and left + wide <= width - 1):
+        if not (1 <= left and left + width_42 <= width - 1):
             continue
-        if not (1 <= top and top + tall <= height - 1):
+        if not (1 <= top and top + length_42 <= height - 1):
             continue
-        cells = {(left + x, top + y)
-                 for y, row in enumerate(GLYPH)
-                 for x, mark in enumerate(row) if mark == "#"}
+        cells: set[Cell] = set()
+        for y, row in enumerate(GLYPH):
+            for x, mark in enumerate(row):
+                if mark == "#":
+                    cells.add((left + x, top + y))
         if not cells & reserved:
             return cells
     print("warning: no room to draw the '42' pattern")
@@ -84,20 +84,19 @@ def neighbours(maze: Maze, cell: Cell) -> list[tuple[str, Cell]]:
 
 
 def carve(maze: Maze, start: Cell, rng: random.Random,
-          blocked: set[Cell] | None = None) -> None:
+          blocked: set[Cell]) -> None:
     """Carve a spanning tree of passages with an iterative backtracker."""
 
-    closed = blocked or set()
     if start not in maze:
         raise ValueError(f"start {start} is outside the maze")
-    if start in closed:
+    if start in blocked:
         raise ValueError(f"start {start} is a blocked cell")
     visited: set[Cell] = {start}
     stack: list[Cell] = [start]
     while stack:
         cell = stack[-1]
         options = [(d, n) for d, n in neighbours(maze, cell)
-                   if n not in visited and n not in closed]
+                   if n not in visited and n not in blocked]
         if not options:
             stack.pop()
             continue
@@ -108,17 +107,16 @@ def carve(maze: Maze, start: Cell, rng: random.Random,
 
 
 def print_maze(maze: Maze, width: int, height: int,
-               blocked: set[Cell] | None = None) -> None:
+               blocked: set[Cell]) -> None:
     """Draw the maze in the terminal using solid blocks."""
 
-    closed = blocked or set()
     for y in range(height):
         print("██", end="")
         for x in range(width):
             print("████" if maze[(x, y)]["N"] else "  ██", end="")
         print("\n██", end="")
         for x in range(width):
-            print("░░" if (x, y) in closed else "  ", end="")
+            print("░░" if (x, y) in blocked else "  ", end="")
             print("██" if maze[(x, y)]["E"] else "  ", end="")
         print()
     print("██" * (width * 2 + 1))
