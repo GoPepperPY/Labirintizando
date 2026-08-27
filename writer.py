@@ -5,7 +5,7 @@ class write_error(Exception):
         super().__init__(message)
 
 
-def write_maze(path: str, maze: list[list[int]],
+def write_maze(path: str, maze: dict[tuple[int, int], dict[str, bool]],
                entry: tuple[int, int], exit_cell: tuple[int, int],
                shortest_path: str) -> None:
     """Write the maze grid, the entry, the exit and the solution."""

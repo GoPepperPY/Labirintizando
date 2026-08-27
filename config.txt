@@ -2,6 +2,7 @@ WIDTH = 15
 HEIGHT = 15
 ENTRY = 0,0
 EXIT = 14,13
+#SEED = 42
 
 #
 OUTPUT_FILE = maze.txt
