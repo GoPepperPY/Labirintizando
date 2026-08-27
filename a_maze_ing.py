@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import random
 from config import parse, parse_error
 from mazegen.maze_generator import MAZE_GENERATOR
 from writer import write_maze, write_error
