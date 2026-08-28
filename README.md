@@ -135,8 +135,7 @@ python -m build
 ### Use of AI
 
 AI was used as a helper for explaining concepts (BFS, backtracking, bitwise
-wall encoding), reviewing error handling in the configuration parser, and
-suggesting the structure of the reusable package. All generated code was
+wall encoding) and reviewing error handling in the configuration parser. All generated code was
 reviewed, tested, and adapted by the team.
 
 ## Team and project management
