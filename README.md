@@ -141,8 +141,8 @@ reviewed, tested, and adapted by the team.
 
 ## Team and project management
 
-- **<login1>**: <role>
-- **<login2>**: <role>
+- **gopiment**: parsing/validation
+- **danicamp**: mazegen/visualizer
 
 <!-- Fill in: planning and how it evolved, what worked well, what could be
      improved, and any specific tools used. -->
