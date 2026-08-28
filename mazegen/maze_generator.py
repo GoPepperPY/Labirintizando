@@ -20,6 +20,15 @@ class MAZE_GENERATOR():
         self.cells_42: set[tuple] = set()
         self.path: list[tuple]
 
+    def path_letters(self) -> str:
+        letters = {(0, -1): "N", (0, 1): "S", (1, 0): "E", (-1, 0): "W"}
+        out = ""
+        for i in range(len(self.path) - 1):
+            x1, y1 = self.path[i]
+            x2, y2 = self.path[i + 1]
+            out += letters[(x2 - x1, y2 - y1)]
+        return out
+
     def create_closed(self) -> None:
         for i in range(self.height):
             for j in range(self.width):
@@ -168,3 +177,4 @@ class MAZE_GENERATOR():
             self.cave_imperfect()
         if self.show_path:
             self.shortest()
+

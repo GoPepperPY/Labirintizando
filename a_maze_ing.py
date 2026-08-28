@@ -30,13 +30,12 @@ def main() -> None:
         exit=conf.exit,
         seed=conf.seed
     )
-    # if gen.shortest_path is False:
-    #     print("error: no path from entry to exit", file=sys.stderr)
-    #     sys.exit(1)
-    gen.shortest_path = ""
+    gen.generate()
+    gen.shortest()
+
     try:
-        write_maze(conf.output_file, gen.maze, gen.entry,
-                   gen.exit, str(gen.shortest_path))
+        write_maze(conf.output_file, gen.maze, gen.width, gen.height,
+               gen.entry, gen.exit, gen.path_letters())
     except write_error as error:
         print(f"error: {error}", file=sys.stderr)
         sys.exit(1)
