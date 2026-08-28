@@ -19,22 +19,8 @@ class write_error(Exception):
 
 
 def to_hex(maze: Maze, width: int, height: int) -> list[str]:
-    """Return the maze as one hexadecimal digit per cell, row by row.
+    """Return the maze as one hexadecimal digit per cell, row by row."""
 
-    Each digit encodes the closed walls of one cell: north is bit 0,
-    east bit 1, south bit 2 and west bit 3.
-
-    Args:
-        maze: Mapping of every cell to its four walls.
-        width: Number of cells on the horizontal axis.
-        height: Number of cells on the vertical axis.
-
-    Returns:
-        One string per row of the maze.
-
-    Raises:
-        write_error: If a cell is missing from the maze.
-    """
     rows: list[str] = []
     for y in range(height):
         row = ""
@@ -55,20 +41,8 @@ def to_hex(maze: Maze, width: int, height: int) -> list[str]:
 def write_maze(path: str, maze: Maze, width: int, height: int,
                entry: Cell, exit_cell: Cell,
                shortest_path: str) -> None:
-    """Write the maze grid, the entry, the exit and the solution.
+    """Write the maze grid, the entry, the exit and the solution."""
 
-    Args:
-        path: Name of the file to write.
-        maze: Mapping of every cell to its four walls.
-        width: Number of cells on the horizontal axis.
-        height: Number of cells on the vertical axis.
-        entry: Entry cell as an (x, y) pair.
-        exit_cell: Exit cell as an (x, y) pair.
-        shortest_path: Solution as a string of N, E, S and W letters.
-
-    Raises:
-        write_error: If the file cannot be written.
-    """
     lines: list[str] = to_hex(maze, width, height)
     lines.append("")
     lines.append(f"{entry[0]},{entry[1]}")

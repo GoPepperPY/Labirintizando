@@ -1,6 +1,7 @@
 """Interactive terminal menu for displaying and regenerating a maze."""
 
 import random
+from typing import Any
 
 MENU = (
     "=== A-Maze-ing ===\n"
@@ -22,14 +23,14 @@ COLORS = [
 ]
 
 
-def show(gen: object, color: str, reset: str) -> None:
+def show(gen: Any, color: str, reset: str) -> None:
     print("\033[2J\033[H", end="")
     gen.generate()
     gen.print_maze(color, reset)
     print(MENU)
 
 
-def loop(gen: object) -> None:
+def loop(gen: Any) -> None:
     color = COLORS[0]
     count = 0
     try:

@@ -35,7 +35,7 @@ def main() -> None:
 
     try:
         write_maze(conf.output_file, gen.maze, gen.width, gen.height,
-               gen.entry, gen.exit, gen.path_letters())
+                   gen.entry, gen.exit, gen.path_letters())
     except write_error as error:
         print(f"error: {error}", file=sys.stderr)
         sys.exit(1)
@@ -45,4 +45,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

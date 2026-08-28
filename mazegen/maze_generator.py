@@ -1,6 +1,5 @@
 import random
 from collections import deque
-import sys
 
 
 class MAZE_GENERATOR():
@@ -32,7 +31,8 @@ class MAZE_GENERATOR():
     def create_closed(self) -> None:
         for i in range(self.height):
             for j in range(self.width):
-                self.maze[(j, i)] = {"N": True, "E": True, "S": True, "W": True}
+                self.maze[(j, i)] = {"N": True, "E": True,
+                                     "S": True, "W": True}
 
     def print_maze(self, color: str, reset: str) -> None:
         print(self.exit)
@@ -112,7 +112,8 @@ class MAZE_GENERATOR():
         ]
         if self.width < 9 or self.height < 7:
             return
-        self.cells_42.update(set((center[0] + cell[0], center[1] + cell[1]) for cell in cells_42))
+        self.cells_42.update(set((center[0] + cell[0], center[1] + cell[1])
+                                 for cell in cells_42))
         if self.entry in self.cells_42 or self.exit in self.cells_42:
             raise Exception("Entry and Exit coordinates "
                             "must be different than 42 cells")
@@ -121,21 +122,21 @@ class MAZE_GENERATOR():
     def cave_imperfect(self) -> None:
         for cell, walls in self.maze.items():
             column, line = cell
-            vizinhos = {
+            neighbors = {
                 "N": (column, line - 1),
                 "S": (column, line + 1),
                 "E": (column + 1, line),
                 "W": (column - 1, line),
             }
-            for direcao, vizinho in vizinhos.items():
+            for direction, neighbor in neighbors.items():
                 if (
                     cell not in self.cells_42
-                    and vizinho not in self.cells_42
-                    and vizinho in self.maze
-                    and walls[direcao]
+                    and neighbor not in self.cells_42
+                    and neighbor in self.maze
+                    and walls[direction]
                     and random.random() < self.chance
                 ):
-                    self.break_wall(cell, vizinho)
+                    self.break_wall(cell, neighbor)
 
     def cave_perfect(self, cell: tuple[int, int]) -> None:
         self.visited.add(cell)
@@ -148,22 +149,22 @@ class MAZE_GENERATOR():
 
     def shortest(self) -> None:
         queue = deque([self.entry])
-        veio_de = {self.entry: None}
-        direcoes = {"N": (0, -1), "S": (0, 1), "E": (1, 0), "W": (-1, 0)}
+        came_from = {self.entry: None}
+        directions = {"N": (0, -1), "S": (0, 1), "E": (1, 0), "W": (-1, 0)}
         while queue:
-            atual = queue.popleft()
-            if atual == self.exit:
+            current = queue.popleft()
+            if current == self.exit:
                 break
-            for direcao, (dx, dy) in direcoes.items():
-                if not self.maze[atual][direcao]:
-                    vizinho = (atual[0] + dx, atual[1] + dy)
-                    if vizinho not in veio_de:
-                        veio_de[vizinho] = atual
-                        queue.append(vizinho)
-        passo = self.exit
-        while passo is not None:
-            self.path.append(passo)
-            passo = veio_de[passo]
+            for direction, (dx, dy) in directions.items():
+                if not self.maze[current][direction]:
+                    neighbor = (current[0] + dx, current[1] + dy)
+                    if neighbor not in came_from:
+                        came_from[neighbor] = current  # type: ignore
+                        queue.append(neighbor)
+        step = self.exit
+        while step is not None:
+            self.path.append(step)
+            step = came_from[step]  # type: ignore
         self.path.reverse()
 
     def generate(self) -> None:
@@ -177,4 +178,3 @@ class MAZE_GENERATOR():
             self.cave_imperfect()
         if self.show_path:
             self.shortest()
-
